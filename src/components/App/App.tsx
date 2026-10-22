@@ -3,10 +3,12 @@ import css from './App.module.css'
 import CafeInfo from '../CafeInfo/CafeInfo'
 import VoteOptions from '../VoteOptions/VoteOptions'
 import VoteStats from '../VoteStats/VoteStats'  
+import Notification from '../Notification/Notification'
 import type { Votes, VoteType } from '../../types/votes'
 
 function App() {
   const [votes, setVotes] = useState<Votes>({ good: 0, neutral: 0, bad: 0 });
+  const totalVotes = votes.good + votes.neutral + votes.bad;
   function handleVote(type: VoteType) {
     setVotes(prev => ({
       ...prev,
@@ -21,15 +23,19 @@ function App() {
     <>
       <div className={css.app}>
         <CafeInfo />
-        <VoteOptions onVote={handleVote} onReset={resetVotes} canReset={votes.good > 0 || votes.neutral > 0 || votes.bad > 0} />
-        <VoteStats
-          
-          votes={votes}
-          totalVotes={ votes.good + votes.neutral + votes.bad }
-          positiveRate={votes.good + votes.neutral + votes.bad > 0
-    ? Math.round((votes.good / (votes.good + votes.neutral + votes.bad)) * 100)
-    : 0} />
 
+        <VoteOptions
+          onVote={handleVote}
+          onReset={resetVotes}
+          canReset={totalVotes>0} />
+        {totalVotes === 0 ? (
+          <Notification />
+        ) : (
+          <VoteStats
+            votes={votes}
+            totalVotes={totalVotes}
+            positiveRate={totalVotes ? Math.round((votes.good / totalVotes) * 100) : 0} />
+        )}
     </div>
 
     </>
